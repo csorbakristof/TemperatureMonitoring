@@ -1,0 +1,4 @@
+/TemperatureMonitoringTools/.vs/*
+/TemperatureMonitoringTools/ExcelExportMerger/obj/*
+**/bin/*
+*.user
