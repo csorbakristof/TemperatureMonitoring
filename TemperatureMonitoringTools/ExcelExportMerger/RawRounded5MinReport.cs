@@ -21,6 +21,7 @@ namespace ExcelExportMerger
             var values = new Dictionary<string, string>();  // Device name - temperature
 
             DateTime lastTimestamp = new DateTime(0);
+            long lastTimestampLong = 0;
             for (int i = 0; i < measurements.Length; i++)
             {
                 var time = RoundTime(measurements[i].Time);
@@ -30,16 +31,17 @@ namespace ExcelExportMerger
                 {
                     if (values.Count() > 0)
                     {
-                        yield return AssembleRow(lastTimestamp, values);
+                        yield return AssembleRow(lastTimestampLong, lastTimestamp, values);
                         values.Clear();
                     }
                     lastTimestamp = time;
+                    lastTimestampLong = measurements[i].Timestamp;
                 }
                 values[measurements[i].DeviceName] = $"{measurements[i].Temperature:F1}";
             }
 
             if (values.Count() > 0)
-                yield return AssembleRow(lastTimestamp, values);
+                yield return AssembleRow(lastTimestampLong, lastTimestamp, values);
         }
 
         private DateTime RoundTime(DateTime time)
