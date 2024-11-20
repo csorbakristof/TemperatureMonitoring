@@ -17,7 +17,7 @@ namespace ExcelExportMerger
             cycles = heatingCycles;
         }
 
-        public IEnumerable<string> GetColumnTitles() => new[] { "Day", "Start count", "Time until next start" };
+        public IEnumerable<string> GetColumnTitles() => new[] { "Day", "Start count" };
 
         public IEnumerable<string[]> GetReportRows()
         {
@@ -27,8 +27,7 @@ namespace ExcelExportMerger
             {
                 yield return new[] {
                     stat.Day.ToString("yyyy-MM-dd"),
-                    stat.Count.ToString(),
-                    stat.TotalDuration.ToString()
+                    stat.Count.ToString()
                 };
             }
         }

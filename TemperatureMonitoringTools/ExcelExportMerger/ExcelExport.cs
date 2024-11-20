@@ -20,6 +20,7 @@ namespace ExcelExportMerger
             {
                 column++;
                 ws.Cell(1, column).Value = title;
+                ws.Cell(1, column).Style.Font.Bold = true;
             }
 
             int row = 1;
@@ -30,7 +31,16 @@ namespace ExcelExportMerger
                 foreach (var value in reportRow)
                 {
                     column++;
-                    ws.Cell(row, column).Value = value;
+
+                    if (double.TryParse(value, out double doubleValue))
+                    {
+                        ws.Cell(row, column).Value = doubleValue;
+                    }
+                    else
+                    {
+                        ws.Cell(row, column).Value = value;
+                    }
+
                 }
             }
         }

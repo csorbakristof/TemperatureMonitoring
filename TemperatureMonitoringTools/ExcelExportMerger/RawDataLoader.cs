@@ -14,7 +14,7 @@ namespace ExcelExportMerger
 {
     internal class RawDataLoader
     {
-        public int KeepLastNDaysOnly { get; set; } = 5;
+        public int KeepLastNDaysOnly { get; set; } = 10;    // May be overridden before the load...
         private List<TempHumValue> measurements = new List<TempHumValue>();
 
         public TempHumValue[] Load(string[] filenames)
@@ -22,10 +22,7 @@ namespace ExcelExportMerger
             measurements = new List<TempHumValue>();
 
             string extension = Path.GetExtension(filenames.First()).ToLower();
-            if (extension == ".xlsx")
-                foreach (var filename in filenames)
-                    LoadXlsx(filename);
-            else if (extension == ".csv")
+            if (extension == ".csv")
                 foreach (var filename in filenames)
                     LoadCsv(filename);
             else if (extension == ".zip")
@@ -40,7 +37,19 @@ namespace ExcelExportMerger
 
             DropOldMeasurements();
 
+            CheckDifferenceOfLatestMeasurementsPerDevice();
+
             return measurements.OrderBy(m => m.Timestamp).ToArray();
+        }
+
+        private void CheckDifferenceOfLatestMeasurementsPerDevice()
+        {
+            // Get the latest Time for each device
+            var latestMeasurements = measurements.GroupBy(m => m.DeviceName).Select(g => g.Max(m => m.Time)).ToArray();
+            var minTime = latestMeasurements.Min();
+            var maxTime = latestMeasurements.Max();
+            if (maxTime - minTime > TimeSpan.FromMinutes(10))
+                MessageBox.Show("There is more than 10 minutes difference between the latest measurements of the devices", "Last measurements with big time difference!");
         }
 
         #region Loading functions
@@ -55,37 +64,6 @@ namespace ExcelExportMerger
                 LoadCsv(file);
             // Delete the temporary directory
             Directory.Delete(tempDir, true);
-        }
-
-        private void LoadXlsx(string filename)
-        {
-            using (var workbook = new XLWorkbook(filename))
-            {
-                var worksheet = workbook.Worksheet(1);
-                var rows = worksheet.RowsUsed();
-                bool isHeader = true;
-                foreach (var row in rows)
-                {
-                    if (isHeader)
-                    {
-                        isHeader = false;
-                        continue;
-                    }
-                    if (row.Cell(1).IsEmpty() || row.Cell(2).IsEmpty())
-                        continue;
-
-                    var measurement = new TempHumValue
-                    {
-                        DeviceName = row.Cell(1).GetString(),
-                        Time = GetDateTimeFromCell(row.Cell(2)),
-                        Timestamp = row.Cell(2).GetDateTime().Ticks,
-                        Temperature = row.Cell(3).IsEmpty() ? null : GetFloatFromCell(row.Cell(3)),
-                        Humidity = row.Cell(4).IsEmpty() ? null : GetFloatFromCell(row.Cell(4)),
-                        Comment = row.Cell(6).GetString()
-                    };
-                    measurements.Add(measurement);
-                }
-            }
         }
 
         private void LoadCsv(string filename)
@@ -122,17 +100,6 @@ namespace ExcelExportMerger
             var dateTime = new DateTime(unixEpochTicks + timestamp, DateTimeKind.Utc);
 
             return dateTime;
-        }
-
-        private float GetFloatFromCell(IXLCell cell) =>
-            float.Parse(cell.GetString(), System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture);
-
-        private readonly Regex dateTimeExtractor = new Regex(@"(\d+-\d+-\d+)T(\d+:\d+):.+");    // 2024-08-29T01:47:33.923+02:00
-        private DateTime GetDateTimeFromCell(IXLCell cell)
-        {
-            var timeString = cell.GetString();
-            var reformattedTimeString = dateTimeExtractor.Replace(timeString, @"$1 $2");
-            return DateTime.Parse(reformattedTimeString);
         }
         #endregion
 

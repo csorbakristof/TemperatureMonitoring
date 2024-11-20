@@ -23,7 +23,7 @@ namespace ExcelExportMerger
             dialog.Multiselect = true;
             if (dialog.ShowDialog() == true)
             {
-                var loader = new RawDataLoader() { KeepLastNDaysOnly = 10 };
+                var loader = new RawDataLoader() { KeepLastNDaysOnly = 30 };
                 measurements = loader.Load(dialog.FileNames).ToArray();
 
                 if (measurements.Length == 0)
@@ -37,9 +37,11 @@ namespace ExcelExportMerger
             // Add all needed reports here
             report.AddReport(new RawReport(measurements));
             report.AddReport(new RawRounded5MinReport(measurements));
+            report.AddReport(new DailyMediansReport(measurements));
             var z2HeatingCycles = HeatingCycleDetector.DetectHeatingCycles("Z2", measurements).ToArray();
             report.AddReport(new HeatingCyclesReport("Z2", z2HeatingCycles));
             report.AddReport(new HeatingCycleCountReport("Z2", z2HeatingCycles));
+            report.AddReport(new DailyMeanExternalTemperature("Terasz", measurements));
 
             var saveDialog = new SaveFileDialog();
             saveDialog.Filter = "XLSX files|*.xlsx";
