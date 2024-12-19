@@ -15,15 +15,16 @@ namespace ExcelExportMerger
         }
 
         private TempHumValue[] measurements = null;
+        private GasMeterValue[] gasMeterValues = null;
 
-        private void Start_Click(object sender, RoutedEventArgs e)
+        private void LoadThermometerLogs_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new OpenFileDialog();
             dialog.Filter = "All files|*.*";
             dialog.Multiselect = true;
             if (dialog.ShowDialog() == true)
             {
-                var loader = new RawDataLoader() { KeepLastNDaysOnly = 30 };
+                var loader = new RawDataLoader() { KeepLastNDaysOnly = 60 };
                 measurements = loader.Load(dialog.FileNames).ToArray();
 
                 if (measurements.Length == 0)
@@ -32,7 +33,22 @@ namespace ExcelExportMerger
                     return;
                 }
             }
+        }
 
+        private void LoadGasMeterValues_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog();
+            dialog.Filter = "Excel files|*.*";
+            dialog.Multiselect = false;
+            if (dialog.ShowDialog() == true)
+            {
+                var loader = new RawDataLoader() { KeepLastNDaysOnly = 30 };
+                gasMeterValues = GasMeterValueLoader.Load(dialog.FileName).ToArray();
+            }
+        }
+
+        private void Start_Click(object sender, RoutedEventArgs e)
+        {
             var report = new ExcelExport();
             // Add all needed reports here
             report.AddReport(new RawReport(measurements));
@@ -42,6 +58,8 @@ namespace ExcelExportMerger
             report.AddReport(new HeatingCyclesReport("Z2", z2HeatingCycles));
             report.AddReport(new HeatingCycleCountReport("Z2", z2HeatingCycles));
             report.AddReport(new DailyMeanExternalTemperature("Terasz", measurements));
+
+            report.AddReport(new CumulativeValueComparisons("Terasz", "Z2", 22.5, measurements, gasMeterValues, new HeatingCycleDetector()));
 
             var saveDialog = new SaveFileDialog();
             saveDialog.Filter = "XLSX files|*.xlsx";

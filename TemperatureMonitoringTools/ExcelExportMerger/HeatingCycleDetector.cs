@@ -4,6 +4,12 @@
     {
         const int MinimalMeasuredTemperatureForActiveHeating = 28;
 
+        // Only a wrapper for the static method to be used in dependency injection cases
+        public IEnumerable<HeatingCycle> GetHeatingCycles(string zoneName, TempHumValue[] measurements)
+        {
+            return DetectHeatingCycles(zoneName, measurements);
+        }
+
         public static IEnumerable<HeatingCycle> DetectHeatingCycles(string zoneName, TempHumValue[] measurements)
         {
             var heatingMeasurements = measurements.Where(m => m.DeviceName.Contains(zoneName)).ToList();

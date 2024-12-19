@@ -2,6 +2,11 @@
 
 namespace ExcelExportMerger
 {
+    /// <summary>
+    /// The ExcelExport class provides functionality to create an Excel workbook,
+    /// add reports to it, and save the workbook to a file. It uses the ClosedXML
+    /// library to handle Excel file operations.
+    /// </summary>
     public class ExcelExport
     {
         private XLWorkbook workbook;
