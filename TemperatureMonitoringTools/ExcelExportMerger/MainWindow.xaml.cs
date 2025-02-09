@@ -60,6 +60,7 @@ namespace ExcelExportMerger
             report.AddReport(new DailyMeanExternalTemperature("Terasz", measurements));
 
             report.AddReport(new CumulativeValueComparisons("Terasz", "Z2", 22.5, measurements, gasMeterValues, new HeatingCycleDetector()));
+            report.AddReport(new ExternalTemperatureAndGasConsumptionReport("Terasz", 22.5, measurements, gasMeterValues));
 
             var saveDialog = new SaveFileDialog();
             saveDialog.Filter = "XLSX files|*.xlsx";
