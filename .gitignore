@@ -2,3 +2,10 @@
 /TemperatureMonitoringTools/ExcelExportMerger/obj/*
 **/bin/*
 *.user
+*/.vs/*
+*/obj/*
+*/bin/*
+*/obj/*
+*/bin/*
+**/obj
+**/bin
