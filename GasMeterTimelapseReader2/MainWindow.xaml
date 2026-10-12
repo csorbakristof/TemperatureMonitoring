@@ -1,9 +1,0 @@
-﻿<Window x:Class="GasMeterTimelapseReader2.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <DataGrid x:Name="dataGrid" AutoGenerateColumns="True" HorizontalAlignment="Left" Height="400" VerticalAlignment="Top" Width="780"/>
-        <Button Content="Read Numbers" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="100" Click="Button_Click"/>
-    </Grid>
-</Window>
